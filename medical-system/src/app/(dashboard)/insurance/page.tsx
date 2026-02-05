@@ -1,147 +1,123 @@
-import { AlertCircle, CheckCircle, Search, ShieldAlert } from "lucide-react";
-import { getInsuranceStats, getRecentClaims, verifyPolicy } from "@/app/actions/insurance";
-import { Claim } from "@/types";
-import { ClaimActions } from "@/components/insurance/claim-actions";
+import Link from "next/link";
+import {
+    Users,
+    FileCheck,
+    Banknote,
+    CalendarClock,
+    Plus,
+    UserPlus,
+    Search,
+    ExternalLink
+} from "lucide-react";
+import { createClient } from "@/lib/supabase/server";
+import { SeedPoliciesButton } from "@/components/insurance/seed-button";
 
 export default async function InsuranceDashboard() {
-    const stats = await getInsuranceStats();
-    // @ts-ignore
-    const { claims } = await getRecentClaims();
+    const supabase = await createClient();
+
+    // Fetch Summary Data (Mocked for now, will connect to real DB)
+    const stats = [
+        { title: "Active Policies", value: "12,450", icon: Users, change: "+2.5%" },
+        { title: "Pending Claims", value: "345", icon: FileCheck, change: "-1.2%" },
+        { title: "Premium Collected", value: "$5.2M", icon: Banknote, change: "+3.8%" }, // Formatted
+        { title: "Policies Expiring Soon", value: "120", icon: CalendarClock, change: "Review" },
+    ];
+
+    // Fetch Recent Claims (Mocked or Real)
+    // const { data: claims } = await supabase.from('claims').select('*').limit(5);
+    // Using Mock Data as placeholder until Claims feature is populated
+    const recentClaims = [
+        { id: "C-2023-001", customer: "Sarah Johnson", type: "Auto Insurance", status: "Approved" },
+        { id: "C-2023-002", customer: "Michael Davis", type: "Home Insurance", status: "Pending" },
+        { id: "C-2023-003", customer: "Emily White", type: "Health Insurance", status: "Rejected" },
+        { id: "C-2023-004", customer: "David Wilson", type: "Auto Insurance", status: "Approved" },
+    ];
+
+    function getStatusBadge(status: string) {
+        if (status === 'Approved') return <span className="px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-700">Approved</span>;
+        if (status === 'Pending') return <span className="px-2 py-1 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">Pending</span>;
+        if (status === 'Rejected') return <span className="px-2 py-1 rounded-full text-xs font-semibold bg-red-100 text-red-700">Rejected</span>;
+        return <span className="px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">{status}</span>;
+    }
 
     return (
         <div className="space-y-8">
-            {/* Header */}
-            <div>
-                <h1 className="text-3xl font-bold tracking-tight">Insurance Portal</h1>
-                <p className="text-muted-foreground">Claim processing and policy management interface.</p>
-            </div>
 
-            {/* Claims Overview */}
-            <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-                <div className="lg:col-span-3 grid grid-cols-1 sm:grid-cols-3 gap-6">
-                    <DashCard
-                        title="New Claims"
-                        value={stats?.pending?.toString() || "0"}
-                        icon={<ShieldAlert className="h-5 w-5 text-blue-500" />}
-                    />
-                    <DashCard
-                        title="Approved Today"
-                        value={stats?.approved?.toString() || "0"}
-                        icon={<CheckCircle className="h-5 w-5 text-green-500" />}
-                    />
-                    <DashCard
-                        title="Total Processed"
-                        value={stats?.total?.toString() || "0"}
-                        icon={<AlertCircle className="h-5 w-5 text-yellow-500" />}
-                    />
-                </div>
-                <div className="bg-blue-50 border border-blue-100 p-6 rounded-xl flex flex-col justify-center items-center text-center">
-                    <h3 className="text-blue-900 font-semibold mb-2">Network Status</h3>
-                    <p className="text-blue-700 text-sm mb-4">All systems operational. HL7 Interface Active.</p>
-                    <div className="h-2 w-full bg-blue-200 rounded-full overflow-hidden">
-                        <div className="h-full bg-blue-500 w-[98%]"></div>
-                    </div>
-                </div>
-            </div>
-
-            {/* Policy Search - Client Component Wrapper would be better but using Server Action form for simplicity */}
-            <div className="bg-card border border-border p-8 rounded-2xl shadow-sm">
-                <h2 className="text-xl font-semibold mb-6 flex items-center gap-2">
-                    <Search className="h-5 w-5 text-blue-600" />
-                    Policy Lookup
-                </h2>
-                <form action={async (formData) => {
-                    "use server"
-                    // Simple demo implementation
-                    const policyNo = formData.get("policy") as string;
-                    if (policyNo) {
-                        // In a real app we'd redirect to a details page or show state
-                        console.log("Searching for", policyNo);
-                    }
-                }} className="flex flex-col md:flex-row gap-4">
-                    <input
-                        name="policy"
-                        type="text"
-                        placeholder="Enter Policy Number or Member ID..."
-                        className="flex-1 h-12 px-4 rounded-lg border border-input bg-background focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
-                    />
-                    <button className="h-12 px-8 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-lg shadow-blue-500/20">
-                        Verify Coverage
-                    </button>
-                </form>
-            </div>
-
-            {/* Claims Queue */}
-            <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold">Recent Claims</h3>
-                    <button className="text-sm text-blue-600 hover:underline">View All Claims</button>
-                </div>
-
-                <div className="bg-card border border-border rounded-xl divide-y divide-border">
-                    {!claims || claims.length === 0 ? (
-                        <div className="p-8 text-center text-muted-foreground">
-                            No recent claims found.
+            {/* Summary Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {stats.map((stat, i) => (
+                    <div key={i} className="bg-white p-6 rounded-xl shadow-sm border border-slate-100 flex flex-col justify-between h-32 hover:shadow-md transition-shadow">
+                        <div className="flex items-start justify-between">
+                            <div>
+                                <p className="text-xs font-bold text-slate-500 uppercase tracking-wider">{stat.title}</p>
+                                <h3 className="text-2xl font-bold text-slate-900 mt-1">{stat.value}</h3>
+                            </div>
+                            <div className="bg-blue-50 p-2 rounded-lg text-blue-600">
+                                <stat.icon className="h-5 w-5" />
+                            </div>
                         </div>
-                    ) : (
-                        claims.map((claim: any) => (
-                            <ClaimItem
-                                key={claim.id}
-                                id={claim.id.substring(0, 8)}
-                                fullId={claim.id} // Pass full ID for actions
-                                patient={claim.patients?.profiles?.full_name || "Unknown"}
-                                amount={`$${claim.claim_amount}`}
-                                provider={claim.provider_name || "Network Provider"} // Fallback
-                                date={new Date(claim.submitted_at).toLocaleDateString()}
-                                status={claim.status}
-                            />
-                        ))
-                    )}
+                        <div className="text-xs font-medium text-slate-400 mt-2">
+                            <span className={stat.change.includes('+') ? "text-green-600" : "text-slate-500"}>{stat.change}</span> from last month
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Quick Actions */}
+            <div className="bg-white p-6 rounded-xl shadow-sm border border-slate-100">
+                <h3 className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-4">Quick Actions</h3>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <Link href="/insurance/policies/new" className="flex items-center justify-center gap-2 p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium">
+                        <Plus className="h-4 w-4" /> Create Policy
+                    </Link>
+                    <button className="flex items-center justify-center gap-2 p-3 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">
+                        <UserPlus className="h-4 w-4" /> Register Customer
+                    </button>
+                    <button className="flex items-center justify-center gap-2 p-3 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">
+                        <FileCheck className="h-4 w-4" /> File Claim
+                    </button>
+                    <button className="flex items-center justify-center gap-2 p-3 bg-white border border-slate-200 text-slate-700 rounded-lg hover:bg-slate-50 transition-colors font-medium">
+                        <ExternalLink className="h-4 w-4" /> View Reports
+                    </button>
+                    <SeedPoliciesButton />
                 </div>
             </div>
-        </div>
-    )
-}
 
-function DashCard({ title, value, icon }: { title: string, value: string, icon: React.ReactNode }) {
-    return (
-        <div className="bg-card border border-border p-6 rounded-xl hover:shadow-md transition-shadow">
-            <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-muted-foreground">{title}</span>
-                {icon}
-            </div>
-            <div className="text-3xl font-bold">{value}</div>
-        </div>
-    )
-}
-
-// Add this import at the top
-// import { ClaimActions } from "@/components/insurance/claim-actions"; // I will add this in a separate chunk or just let the tool handle it if I can match the top.
-// Actually I need two chunks.
-
-function ClaimItem({ id, patient, amount, provider, date, status, fullId }: { id: string, patient: string, amount: string, provider: string, date: string, status: string, fullId: string }) {
-    return (
-        <div className="p-4 flex flex-col md:flex-row md:items-center justify-between hover:bg-muted/30 transition-colors gap-4">
-            <div className="flex items-start gap-4">
-                <div className="h-10 w-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
-                    <Search className="h-5 w-5" />
+            {/* Recent Claims Table */}
+            <div className="bg-white rounded-xl shadow-sm border border-slate-100 overflow-hidden">
+                <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                    <h3 className="text-lg font-bold text-slate-800">Recent Claims</h3>
+                    <Link href="/insurance/claims" className="text-sm text-blue-600 hover:text-blue-800 font-medium">View All</Link>
                 </div>
-                <div>
-                    <h4 className="font-medium">{patient} <span className="text-muted-foreground font-normal text-sm">({id})</span></h4>
-                    <p className="text-sm text-muted-foreground">{provider} • {date}</p>
+
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left text-sm text-slate-600">
+                        <thead className="bg-slate-50 text-xs uppercase font-semibold text-slate-500">
+                            <tr>
+                                <th className="px-6 py-4">Claim ID</th>
+                                <th className="px-6 py-4">Customer Name</th>
+                                <th className="px-6 py-4">Policy Type</th>
+                                <th className="px-6 py-4">Status</th>
+                                <th className="px-6 py-4 text-right">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100">
+                            {recentClaims.map((claim) => (
+                                <tr key={claim.id} className="hover:bg-slate-50 transition-colors">
+                                    <td className="px-6 py-4 font-medium text-slate-900">{claim.id}</td>
+                                    <td className="px-6 py-4">{claim.customer}</td>
+                                    <td className="px-6 py-4">{claim.type}</td>
+                                    <td className="px-6 py-4">{getStatusBadge(claim.status)}</td>
+                                    <td className="px-6 py-4 text-right">
+                                        <button className="text-blue-600 hover:text-blue-800 font-medium text-xs">View Details</button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div className="flex items-center gap-6">
-                <span className="font-bold">{amount}</span>
-                <span className={`px-3 py-1 rounded-full text-xs font-medium border
-                    ${status === 'pending' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
-                        status === 'rejected' ? 'bg-red-50 text-red-700 border-red-200' :
-                            'bg-green-50 text-green-700 border-green-200'}`}>
-                    {status}
-                </span>
 
-                {status === 'pending' && <ClaimActions id={fullId} />}
-            </div>
         </div>
-    )
+    );
 }

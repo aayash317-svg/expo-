@@ -100,3 +100,87 @@ export async function processClaim(claimId: string, status: 'approved' | 'reject
     revalidatePath('/insurance');
     return { success: true };
 }
+
+export async function getProviderCustomers() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "Unauthorized" };
+
+    // Fetch unique patients via policies
+    const { data, error } = await supabase
+        .from('insurance_policies')
+        .select(`
+            patient_id,
+            patients (
+                *,
+                profiles ( full_name, email, phone )
+            )
+        `)
+        .eq('provider_id', user.id);
+
+    if (error) return { error: error.message };
+
+    // Deduplicate patients manually in JS since Supabase/Postgrest DISTINCT ON is tricky with joins
+    const customersMap = new Map();
+    data.forEach((policy: any) => {
+        if (policy.patients && !customersMap.has(policy.patient_id)) {
+            customersMap.set(policy.patient_id, policy.patients);
+        }
+    });
+
+    return { customers: Array.from(customersMap.values()) };
+}
+
+export async function getClaims(status?: 'pending' | 'approved' | 'rejected') {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "Unauthorized" };
+
+    let query = supabase
+        .from('claims')
+        .select(`
+            *,
+            patients (
+                profiles ( full_name, email )
+            ),
+            insurance_policies ( policy_number )
+        `)
+        .eq('provider_id', user.id)
+        .order('submitted_at', { ascending: false });
+
+    if (status) {
+        query = query.eq('status', status);
+    }
+
+    const { data, error } = await query;
+
+    if (error) return { error: error.message };
+    return { claims: data };
+}
+
+export async function getClaimById(claimId: string) {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "Unauthorized" };
+
+    const { data, error } = await supabase
+        .from('claims')
+        .select(`
+            *,
+            patients (
+                *,
+                profiles ( full_name, email, phone )
+            ),
+            insurance_policies ( 
+                policy_number, 
+                coverage_amount,
+                valid_until
+            )
+        `)
+        .eq('id', claimId)
+        .eq('provider_id', user.id)
+        .single();
+
+    if (error) return { error: error.message };
+    return { claim: data };
+}

@@ -9,6 +9,8 @@
     --danger-color: #ef4444;
     --success-color: #10b981;
     --font-family: 'Inter', sans-serif;
+    --sidebar-width: 250px;
+    --header-height: 70px;
 }
 
 body {
@@ -17,10 +19,119 @@ body {
     color: var(--text-color);
     margin: 0;
     padding: 0;
-    display: flex;
-    justify-content: center;
     min-height: 100vh;
 }
+
+/* Auth / Public Pages Layout (Centered) */
+body:not(.logged-in) {
+    display: flex;
+    justify-content: center;
+}
+
+/* Dashboard Layout (Sidebar + Content) */
+body.logged-in {
+    display: block;
+    /* Let flex container handle layout */
+    overflow-x: hidden;
+}
+
+.dashboard-container {
+    display: flex;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    width: var(--sidebar-width);
+    background-color: var(--card-bg);
+    border-right: 1px solid var(--border-color);
+    position: fixed;
+    height: 100vh;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    z-index: 1000;
+}
+
+.sidebar-header {
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.sidebar-nav {
+    padding: 20px 0;
+    flex: 1;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.sidebar-link:hover,
+.sidebar-link.active {
+    background-color: #eff6ff;
+    color: var(--primary-color);
+    border-right: 3px solid var(--primary-color);
+}
+
+.sidebar-footer {
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+/* Main Content Area */
+.main-content {
+    flex: 1;
+    margin-left: var(--sidebar-width);
+    /* Push content right */
+    background-color: var(--background-color);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.top-bar {
+    height: var(--header-height);
+    background-color: var(--card-bg);
+    /* White header */
+    border-bottom: 1px solid var(--border-color);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    /* User info on right */
+    padding: 0 30px;
+    position: sticky;
+    top: 0;
+    z-index: 900;
+}
+
+.content-wrapper {
+    padding: 30px;
+    width: 100%;
+    box-sizing: border-box;
+    /* Crucial for padding */
+    max-width: 1600px;
+    /* Allow wider content but prevent infinite stretch on 4k */
+    margin: 0 auto;
+}
+
+/* Legacy Container Override for Dashboard */
+.app-container-dashboard {
+    width: 100% !important;
+    max-width: none !important;
+    padding: 0 !important;
+}
+
 
 .app-container {
     width: 100%;

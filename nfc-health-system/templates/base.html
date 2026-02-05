@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,34 +9,83 @@
     <!-- Google Fonts for Typography -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
-<body>
+
+<body class="{% if session.get('user_id') %}logged-in{% endif %}">
+
+    {% if session.get('user_id') %}
+    <!-- DASHBOARD LAYOUT (Sidebar + Main Content) -->
+    <div class="dashboard-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">🏥 NFC Health</div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('dashboard') }}"
+                    class="sidebar-link {% if request.endpoint == 'dashboard' %}active{% endif %}">
+                    Dashboard
+                </a>
+                <a href="{{ url_for('hospital_profile') }}"
+                    class="sidebar-link {% if request.endpoint == 'hospital_profile' %}active{% endif %}">
+                    Hospital Profile
+                </a>
+                <a href="{{ url_for('patient_access') }}"
+                    class="sidebar-link {% if request.endpoint == 'patient_access' %}active{% endif %}">
+                    Patient Access
+                </a>
+                <a href="{{ url_for('settings') }}"
+                    class="sidebar-link {% if request.endpoint == 'settings' %}active{% endif %}">
+                    Settings
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{{ url_for('logout') }}" class="btn-secondary"
+                    style="display: block; text-align: center; text-decoration: none;">Sign Out</a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="top-bar">
+                <span class="user-info">Logged in as: <strong>{{ session.get('user_name', 'User') }}</strong></span>
+            </header>
+
+            <div class="content-wrapper">
+                {{ self.content() }}
+            </div>
+        </main>
+    </div>
+
+    {% else %}
+    <!-- PUBLIC/AUTH LAYOUT (Centered) -->
     <div class="app-container">
         <header class="app-header">
             <div class="logo">
                 <span class="icon">🏥</span> NFC Health ID
             </div>
             <nav>
-                {% if session.get('user_id') %}
-                <span class="user-info">Logged in as: {{ session.get('user_name') }}</span>
-                <a href="{{ url_for('dashboard') }}" class="nav-link">Dashboard</a>
-                <a href="{{ url_for('logout') }}" class="nav-link btn-secondary">Logout</a>
-                {% else %}
                 <a href="{{ url_for('index') }}" class="nav-link">Login</a>
                 <a href="{{ url_for('register') }}" class="nav-link">Register</a>
-                {% endif %}
             </nav>
         </header>
 
         <main class="app-content">
-            {% block content %}{% endblock %}
+            {% block content_public %}{{ self.content() }}{% endblock %}
         </main>
 
         <footer class="app-footer">
             <p>&copy; 2026 NFC Health ID System. Secure & Immutable.</p>
         </footer>
     </div>
+    {% endif %}
 
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block scripts %}{% endblock %}
+
+    <!-- Define content block once -->
+    <div style="display:none;">{% block content %}{% endblock %}</div>
 </body>
+
 </html>

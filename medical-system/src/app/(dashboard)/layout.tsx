@@ -48,10 +48,6 @@ export default async function DashboardLayout({
     } else {
         // Patient (Default)
         sidebarLinks = [
-            { href: "/patient", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
-            { href: "/patient/records", label: "Medical History", icon: <History className="h-5 w-5" /> },
-            { href: "/patient/profile", label: "Patient Profile", icon: <User className="h-5 w-5" /> },
-            { href: "/patient/settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
         ];
     }
 

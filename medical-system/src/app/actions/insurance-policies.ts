@@ -66,3 +66,40 @@ export async function createPolicy(prevState: any, formData: FormData) {
     revalidatePath('/insurance/policies');
     redirect('/insurance/policies');
 }
+
+export async function seedSamplePolicies() {
+    const supabase = await createClient();
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return { error: "Unauthorized" };
+
+    // Create a dummy patient if needed, or find one
+    // Ideally we assume at least one patient exists, or we create a placeholder
+    // For simplicity, we'll try to find any patient
+    const { data: patients } = await supabase.from('profiles').select('id, email').eq('role', 'patient').limit(1);
+
+    let patientId;
+    if (patients && patients.length > 0) {
+        patientId = patients[0].id;
+    } else {
+        // Fallback or error
+        return { error: "No patients found to assign policies to. Please create a patient account first." };
+    }
+
+    const samples = [
+        { policy_number: `POL-${Date.now()}-A`, coverage_amount: 50000, status: 'active', valid_until: '2026-12-31' },
+        { policy_number: `POL-${Date.now()}-B`, coverage_amount: 100000, status: 'active', valid_until: '2027-06-30' },
+        { policy_number: `POL-${Date.now()}-C`, coverage_amount: 75000, status: 'expired', valid_until: '2025-01-01' },
+    ];
+
+    for (const sample of samples) {
+        await supabase.from('insurance_policies').insert({
+            provider_id: user.id,
+            patient_id: patientId,
+            ...sample
+        });
+    }
+
+    revalidatePath('/insurance/policies');
+    revalidatePath('/insurance');
+    return { success: true };
+}

@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <h2>Settings</h2>
+    <p>Manage your account settings here.</p>
+
+    <div style="margin-top: 20px; padding: 20px; background: #f8fafc; border-radius: 8px;">
+        <h3>Account Information</h3>
+        <p><strong>Name:</strong> {{ session.get('user_name', 'User') }}</p>
+        <p><strong>Role:</strong> Hospital / Insurance Admin</p>
+        <button class="btn-secondary" style="margin-top: 10px;" onclick="alert('Feature coming soon')">Edit
+            Profile</button>
+    </div>
+</div>
+{% endblock %}

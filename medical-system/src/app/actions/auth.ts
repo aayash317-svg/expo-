@@ -39,26 +39,8 @@ export async function verifyOtp(phone: string, token: string) {
     }
 
     if (session) {
-        // Check if profile exists, if not create it (Auto-Registration)
-        const user = session.user;
-        const { data: profile } = await supabase.from('profiles').select('id').eq('id', user.id).single();
-
-        if (!profile) {
-            // Create Profile
-            await supabase.from('profiles').insert({
-                id: user.id,
-                role: 'patient',
-                phone: phone, // Save phone to profile
-                full_name: 'New Patient', // Placeholder
-            });
-
-            // Create Patient Record
-            await supabase.from('patients').insert({
-                id: user.id,
-                // defaults
-            });
-        }
-
+        // Trigger should have created the profile by now.
+        // We can optionally verify it or just return success.
         return { success: true };
     }
 
@@ -84,6 +66,7 @@ export async function signUpPatient(formData: FormData) {
 
         const supabase = await createClient();
 
+        // Pass all needed data in metadata for the trigger to pick up
         const { data: authData, error: authError } = await supabase.auth.signUp({
             email,
             password,
@@ -91,36 +74,15 @@ export async function signUpPatient(formData: FormData) {
                 data: {
                     full_name: fullName,
                     role: 'patient',
+                    dob: dob,
+                    blood_group: bloodGroup,
+                    emergency_contact: emergencyContact
                 },
             },
         });
 
         if (authError) return { error: authError.message };
         if (!authData.user) return { error: "User creation failed" };
-
-        // 1. Create Profile
-        const { error: profileError } = await supabase.from('profiles').insert({
-            id: authData.user.id,
-            email: email,
-            role: 'patient' as UserRole,
-            full_name: fullName,
-        });
-
-        if (profileError && !profileError.message.includes('duplicate key')) {
-            return { error: "Profile creation failed: " + profileError.message };
-        }
-
-        // 2. Create Patient Record
-        const { error: patientError } = await supabase.from('patients').insert({
-            id: authData.user.id,
-            dob: dob,
-            blood_group: bloodGroup,
-            emergency_contact: emergencyContact
-        });
-
-        if (patientError) {
-            return { error: "Patient record creation failed: " + patientError.message };
-        }
 
         // Auto-signin if no confirmation required
         if (!authData.session) {
@@ -153,6 +115,8 @@ export async function signUpHospital(formData: FormData) {
                 data: {
                     full_name: hospitalName,
                     role: 'hospital',
+                    license_number: licenseNumber,
+                    address: address
                 },
             },
         });
@@ -160,33 +124,8 @@ export async function signUpHospital(formData: FormData) {
         if (authError) return { error: authError.message };
         if (!authData.user) return { error: "User creation failed" };
 
-        // Handle possible duplicate key error if profile trigger exists or check explicitly
-        const { error: profileError } = await supabase.from('profiles').insert({
-            id: authData.user.id,
-            email: email,
-            role: 'hospital' as UserRole,
-            full_name: hospitalName,
-        });
-
-        if (profileError && !profileError.message.includes('duplicate key')) {
-            return { error: "Profile creation failed: " + profileError.message };
-        }
-
-        const { error: hospitalError } = await supabase.from('hospitals').insert({
-            id: authData.user.id,
-            license_number: licenseNumber,
-            address: address,
-            verified: false // PENDING APPROVAL
-        });
-
-        if (hospitalError) {
-            return { error: "Hospital details creation failed: " + hospitalError.message };
-        }
-
-        // Auto-signin only if email confirmation is disabled, otherwise they need to confirm.
-        // But assuming dev/test mode or immediate access to verification page:
+        // Auto-signin 
         if (!authData.session) {
-            // Try to sign in (will fail if email needs confirmation)
             await supabase.auth.signInWithPassword({ email, password });
         }
 
@@ -218,27 +157,6 @@ export async function signUpInsurance(formData: FormData) {
 
         if (authError) return { error: authError.message };
         if (!authData.user) return { error: "User creation failed" };
-
-        const { error: profileError } = await supabase.from('profiles').insert({
-            id: authData.user.id,
-            email: email,
-            role: 'insurance' as UserRole,
-            full_name: companyName,
-        });
-
-        if (profileError && !profileError.message.includes('duplicate key')) {
-            return { error: "Profile creation failed: " + profileError.message };
-        }
-
-        const { error: insError } = await supabase.from('insurance_providers').insert({
-            id: authData.user.id,
-            company_name: companyName,
-            verified: false // PENDING APPROVAL
-        });
-
-        if (insError) {
-            return { error: "Provider details creation failed: " + insError.message };
-        }
 
         if (!authData.session) {
             await supabase.auth.signInWithPassword({ email, password });

@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Insurance Policies</h2>
+        <button onclick="document.getElementById('create-modal').style.display='block'" class="btn-primary">
+            + New Policy
+        </button>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Policy #</th>
+                <th>Patient</th>
+                <th>Coverage</th>
+                <th>Status</th>
+                <th>QR / NFC</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in policies %}
+            <tr>
+                <td>{{ p.policy_number }}</td>
+                <td>{{ p.patient_name or 'ID: ' ~ p.patient_id }}</td>
+                <td>${{ p.coverage_amount }}</td>
+                <td>
+                    <span class="tag tag-pdf">{{ p.status }}</span>
+                </td>
+                <td>
+                    {% if p.qr_code_path %}
+                    <a href="{{ url_for('static', filename=p.qr_code_path) }}" target="_blank"
+                        class="tag tag-image">View QR</a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" style="text-align: center; color: #64748b;">No policies issued yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Simple Modal for Creation -->
+<div id="create-modal"
+    style="display:none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index: 2000;">
+    <div style="background:white; padding:30px; border-radius:12px; max-width:500px; margin: 100px auto;">
+        <h3>Create New Policy</h3>
+        <form action="{{ url_for('create_policy_route') }}" method="POST">
+            <div class="form-group">
+                <label>Patient Email</label>
+                <input type="email" name="patient_email" required placeholder="patient@example.com">
+            </div>
+            <div class="form-group">
+                <label>Policy Number</label>
+                <input type="text" name="policy_number" required placeholder="POL-2024-XXX">
+            </div>
+            <div class="form-group">
+                <label>Coverage Amount ($)</label>
+                <input type="number" name="coverage_amount" required placeholder="50000">
+            </div>
+            <div class="form-group">
+                <label>Valid Until</label>
+                <input type="date" name="valid_until" required>
+            </div>
+            <div style="margin-top:20px; text-align:right;">
+                <button type="button" class="btn-secondary"
+                    onclick="document.getElementById('create-modal').style.display='none'">Cancel</button>
+                <button type="submit" class="btn-primary">Generate Policy & QR</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
