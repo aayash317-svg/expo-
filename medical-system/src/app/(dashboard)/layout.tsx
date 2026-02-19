@@ -73,10 +73,12 @@ export default async function DashboardLayout({
                 <SidebarNav links={sidebarLinks} />
 
                 <div className="p-4 border-t border-border/50">
-                    <Link href="/" className="flex items-center gap-3 px-4 py-3 text-destructive hover:bg-destructive/10 rounded-lg font-medium transition-colors">
-                        <LogOut className="h-5 w-5" />
-                        Sign Out
-                    </Link>
+                    <form action="/auth/signout" method="post">
+                        <button type="submit" className="w-full flex items-center gap-3 px-4 py-3 text-destructive hover:bg-destructive/10 rounded-lg font-medium transition-colors">
+                            <LogOut className="h-5 w-5" />
+                            Sign Out
+                        </button>
+                    </form>
                 </div>
             </aside>
 

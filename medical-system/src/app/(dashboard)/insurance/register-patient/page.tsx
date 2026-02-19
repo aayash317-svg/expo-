@@ -134,19 +134,19 @@ export default function RegisterPatientPage() {
                             <div className="space-y-2 md:col-span-2">
                                 <label className="text-sm font-medium text-muted-foreground">Blood Group</label>
                                 <select
-                                    className="w-full h-12 rounded-xl bg-black/20 border border-input px-4 text-foreground focus:ring-2 focus:ring-primary focus:outline-none"
+                                    className="w-full h-12 rounded-xl bg-slate-900 border border-white/10 px-4 text-foreground focus:ring-2 focus:ring-primary focus:outline-none appearance-none cursor-pointer"
                                     value={formData.blood_group}
                                     onChange={e => setFormData({ ...formData, blood_group: e.target.value })}
                                 >
-                                    <option value="">Select Blood Group</option>
-                                    <option value="A+">A+</option>
-                                    <option value="A-">A-</option>
-                                    <option value="B+">B+</option>
-                                    <option value="B-">B-</option>
-                                    <option value="AB+">AB+</option>
-                                    <option value="AB-">AB-</option>
-                                    <option value="O+">O+</option>
-                                    <option value="O-">O-</option>
+                                    <option value="" className="bg-slate-900 text-foreground">Select Blood Group</option>
+                                    <option value="A+" className="bg-slate-900 text-foreground">A+</option>
+                                    <option value="A-" className="bg-slate-900 text-foreground">A-</option>
+                                    <option value="B+" className="bg-slate-900 text-foreground">B+</option>
+                                    <option value="B-" className="bg-slate-900 text-foreground">B-</option>
+                                    <option value="AB+" className="bg-slate-900 text-foreground">AB+</option>
+                                    <option value="AB-" className="bg-slate-900 text-foreground">AB-</option>
+                                    <option value="O+" className="bg-slate-900 text-foreground">O+</option>
+                                    <option value="O-" className="bg-slate-900 text-foreground">O-</option>
                                 </select>
                             </div>
                         </div>

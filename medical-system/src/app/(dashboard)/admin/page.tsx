@@ -1,8 +1,10 @@
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { Building2, ShieldCheck, Users, Plus } from "lucide-react";
 import Link from "next/link";
 
-async function getStats(supabase: any) {
+async function getStats() {
+    const supabase = createAdminClient();
     const [{ count: hospitalCount }, { count: insuranceCount }, { count: patientCount }] = await Promise.all([
         supabase.from("hospitals").select("*", { count: "exact", head: true }),
         supabase.from("insurance_providers").select("*", { count: "exact", head: true }),
@@ -12,8 +14,7 @@ async function getStats(supabase: any) {
 }
 
 export default async function AdminDashboard() {
-    const supabase = await createClient();
-    const { hospitalCount, insuranceCount, patientCount } = await getStats(supabase);
+    const { hospitalCount, insuranceCount, patientCount } = await getStats();
 
     return (
         <div className="space-y-8">

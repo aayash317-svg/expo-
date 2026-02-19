@@ -11,101 +11,196 @@
             const response = await fetch(`/api/patient/${patientId}/records`);
             const records = await response.json();
 
+            // Clear loading state
+            recordsContainer.innerHTML = '';
+
             if (records.length === 0) {
-                recordsContainer.innerHTML = '<p style="text-align:center; padding: 20px;">No medical records found.</p>';
+                recordsContainer.innerHTML = '<tr><td colspan="4" class="text-center" style="padding: 40px; color: var(--text-muted); opacity: 0.5;">No medical records found for this patient.</td></tr>';
             } else {
                 records.forEach(record => {
                     const row = document.createElement('tr');
+                    row.className = "record-row animate-in fade-in slide-in-from-bottom-2";
                     row.innerHTML = `
-                        <td>${new Date(record.created_at).toLocaleString()}</td>
-                        <td>${record.hospital_name}</td>
+                        <td style="color: var(--text-muted); font-size: 0.85rem;">${new Date(record.created_at).toLocaleString()}</td>
+                        <td style="color: var(--primary); font-weight: 500;">${record.hospital_name}</td>
                         <td>
-                            <span class="tag tag-${record.record_type}">${record.record_type.toUpperCase()}</span>
+                            <span class="badge badge-outline badge-${record.record_type.toLowerCase()}">${record.record_type.toUpperCase()}</span>
                         </td>
                         <td>
-                            <strong>${record.summary}</strong><br>
-                            <small>${record.data_payload}</small>
+                            <div style="font-weight: 600; color: var(--text-main); margin-bottom: 2px;">${record.summary}</div>
+                            <div style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.4;">${record.data_payload}</div>
                         </td>
                     `;
                     recordsContainer.appendChild(row);
                 });
             }
         } catch (e) {
-            recordsContainer.innerHTML = '<p style="color:red;">Error loading records.</p>';
+            recordsContainer.innerHTML = '<tr><td colspan="4" class="text-center" style="color: var(--accent); padding: 20px;">Error syncing records. Please refresh.</td></tr>';
         }
     });
 </script>
+
+<style>
+    .record-row:hover {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .badge {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        border: 1px solid currentColor;
+    }
+
+    .badge-text {
+        color: #06b6d4;
+        background: rgba(6, 182, 212, 0.1);
+    }
+
+    .badge-image {
+        color: #8b5cf6;
+        background: rgba(139, 92, 246, 0.1);
+    }
+
+    .badge-pdf {
+        color: #10b981;
+        background: rgba(16, 185, 129, 0.1);
+    }
+
+    table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 8px;
+        margin-top: 1rem;
+    }
+
+    th {
+        text-align: left;
+        padding: 12px 16px;
+        color: var(--text-muted);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    td {
+        padding: 16px;
+        background: rgba(255, 255, 255, 0.02);
+        border-top: 1px solid var(--glass-border);
+        border-bottom: 1px solid var(--glass-border);
+    }
+
+    td:first-child {
+        border-left: 1px solid var(--glass-border);
+        border-radius: 12px 0 0 12px;
+    }
+
+    td:last-child {
+        border-right: 1px solid var(--glass-border);
+        border-radius: 0 12px 12px 0;
+    }
+
+    .identity-card {
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.05) 0%, rgba(139, 92, 246, 0.05) 100%);
+        border: 1px solid var(--primary-glow);
+    }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="card">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2>Medical History: {{ patient.full_name }} <span
-                style="font-size: 0.6em; background: #e2e8f0; padding: 4px 8px; border-radius: 4px; color: #475569; vertical-align: middle;">Hospital
-                Read-Only View</span></h2>
-        <a href="{{ url_for('add_medical_data', patient_id=patient.id) }}" class="btn-primary">➕ Add Medical Data</a>
+<div class="glass-panel" style="padding: 40px; margin-bottom: 40px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+        <div>
+            <h1 class="text-gradient" style="margin: 0; font-size: 2.2rem;">{{ patient.full_name }}</h1>
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 8px;">
+                <div style="height: 6px; width: 6px; background: var(--primary); border-radius: 50%;"></div>
+                <p
+                    style="color: var(--text-muted); margin: 0; font-size: 0.9rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase;">
+                    Hospital Security Cleared • Read-Only Access</p>
+            </div>
+        </div>
+        <a href="{{ url_for('add_medical_data', patient_id=patient.id) }}" class="btn-primary"
+            style="padding: 12px 24px; border-radius: 14px; font-size: 0.9rem;">
+            <span style="font-size: 1.2rem; margin-right: 8px;">+</span> Add Medical Entry
+        </a>
     </div>
 
     <!-- Digital Identity Section -->
-    <div class="card" style="margin-bottom: 20px; background: #f8fafc; border: 1px solid #e2e8f0;">
-        <h3>Digital Identity</h3>
-        <div style="display: flex; align-items: center; gap: 20px;">
+    <div class="glass-panel identity-card" style="padding: 24px; margin-bottom: 30px; border-radius: 16px;">
+        <h3
+            style="margin-bottom: 15px; color: var(--primary); font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.1em;">
+            Global Digital Identity</h3>
+        <div style="display: grid; grid-template-columns: 1fr 1fr auto; gap: 24px; align-items: start;">
             <div>
-                <strong>NFC ID (Physical):</strong>
-                <span style="font-family: monospace; background: #fff; padding: 2px 5px; border-radius: 3px;">
+                <label style="margin-bottom: 4px;">Hardware ID (NFC)</label>
+                <div
+                    style="font-family: 'Space Grotesk', monospace; color: var(--text-main); background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 1.1rem;">
                     {{ patient.nfc_id if patient.nfc_id else 'Not assigned' }}
-                </span>
+                </div>
             </div>
             <div>
-                <strong>NFC ID (Logical/Encrypted):</strong>
-                <span
-                    style="font-family: monospace; background: #fff; padding: 2px 5px; border-radius: 3px; word-break: break-all;">
-                    {{ patient.generated_nfc_id if patient.generated_nfc_id else 'Not generated' }}
-                </span>
+                <label style="margin-bottom: 4px;">System ID (UUID)</label>
+                <div
+                    style="font-family: 'Space Grotesk', monospace; color: var(--text-muted); background: rgba(0,0,0,0.3); padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border); font-size: 0.85rem; word-break: break-all;">
+                    {{ patient.id }}
+                </div>
             </div>
-        </div>
-        {% if patient.qr_code %}
-        <div style="margin-top: 15px;">
-            <strong>QR Code:</strong><br>
-            <!-- Assuming qr_code contains base64 image data or path. If path, allow both cases -->
-            {% if patient.qr_code.startswith('data:image') %}
-            <img src="{{ patient.qr_code }}" alt="Patient QR"
-                style="max-width: 150px; border: 1px solid #ccc; padding: 5px; background: white;">
-            {% else %}
-            <img src="{{ url_for('static', filename=patient.qr_code) }}" alt="Patient QR"
-                style="max-width: 150px; border: 1px solid #ccc; padding: 5px; background: white;">
+            {% if patient.qr_code %}
+            <div style="text-align: center;">
+                <label style="margin-bottom: 4px;">Master QR</label>
+                <div
+                    style="background: white; padding: 10px; border-radius: 12px; display: inline-block; box-shadow: 0 0 20px var(--primary-glow);">
+                    {% if patient.qr_code.startswith('data:image') %}
+                    <img src="{{ patient.qr_code }}" alt="Patient QR"
+                        style="width: 80px; height: 80px; display: block;">
+                    {% else %}
+                    <img src="{{ url_for('static', filename=patient.qr_code) }}" alt="Patient QR"
+                        style="width: 80px; height: 80px; display: block;">
+                    {% endif %}
+                </div>
+            </div>
             {% endif %}
         </div>
-        {% endif %}
     </div>
 
-
-    <div class="alert"
-        style="background: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-size: 0.9rem;">
-        ⚠️ <strong>Read-Only Access:</strong> Historical records cannot be modified or deleted.
+    <div
+        style="background: rgba(244, 63, 94, 0.1); border: 1px solid rgba(244, 63, 94, 0.2); padding: 16px; border-radius: 12px; margin-bottom: 30px; display: flex; gap: 12px; align-items: center;">
+        <span style="font-size: 1.2rem;">🛡️</span>
+        <p style="margin: 0; color: #fb7185; font-size: 0.85rem; font-weight: 500;">
+            <strong>Confidential:</strong> Historical records are cryptographically signed and cannot be modified or
+            deleted.
+        </p>
     </div>
 
     <div style="overflow-x: auto;">
         <table>
             <thead>
                 <tr>
-                    <th style="width: 20%;">Date & Time</th>
-                    <th style="width: 20%;">Added By</th>
-                    <th style="width: 10%;">Type</th>
-                    <th style="width: 50%;">Details / Summary</th>
+                    <th style="width: 20%;">Timestamp</th>
+                    <th style="width: 20%;">Origin</th>
+                    <th style="width: 15%;">Format</th>
+                    <th style="width: 45%;">Clinical Summary & Records</th>
                 </tr>
             </thead>
             <tbody id="records-container">
                 <!-- Records loaded via JS -->
                 <tr>
-                    <td colspan="4" style="text-align: center;">Loading...</td>
+                    <td colspan="4" class="text-center" style="padding: 40px; color: var(--text-muted);">
+                        <div class="animate-pulse">Accessing secure history...</div>
+                    </td>
                 </tr>
             </tbody>
         </table>
     </div>
 
-    <div style="margin-top: 30px;">
-        <a href="{{ url_for('dashboard') }}" class="btn-secondary">Back to Dashboard</a>
+    <div style="margin-top: 40px; display: flex; gap: 16px;">
+        <a href="{{ url_for('dashboard') }}" class="btn-primary"
+            style="background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--glass-border); flex: 1;">
+            Return to Dashboard
+        </a>
     </div>
 </div>
 {% endblock %}

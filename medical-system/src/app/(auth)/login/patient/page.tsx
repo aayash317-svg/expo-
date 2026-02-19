@@ -101,12 +101,7 @@ export default function PatientLogin() {
                     </button>
                 </form>
 
-                <div className="text-center text-sm mt-8 pt-6 border-t border-border">
-                    <span className="text-muted-foreground">New User? </span>
-                    <Link href="/signup/patient" className="text-primary font-medium hover:text-primary/80 hover:underline underline-offset-4 transition-colors">
-                        Create Identity
-                    </Link>
-                </div>
+
             </div>
 
             <div className="absolute bottom-4 text-center text-xs text-muted-foreground/40 font-mono tracking-widest uppercase">

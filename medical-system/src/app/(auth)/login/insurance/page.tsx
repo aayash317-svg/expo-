@@ -101,12 +101,7 @@ export default function InsuranceLogin() {
                     </button>
                 </form>
 
-                <div className="text-center text-sm mt-8 pt-6 border-t border-border">
-                    <span className="text-muted-foreground">New Provider? </span>
-                    <Link href="/signup/insurance" className="text-purple-400 font-medium hover:text-purple-300 hover:underline underline-offset-4 transition-colors">
-                        Register
-                    </Link>
-                </div>
+
             </div>
 
             <div className="absolute bottom-4 text-center text-xs text-muted-foreground/40 font-mono tracking-widest uppercase">

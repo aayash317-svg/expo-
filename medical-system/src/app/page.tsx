@@ -49,7 +49,7 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-              <Link href="/signup/patient"
+              <Link href="/login"
                 className="group relative w-full sm:w-auto px-8 py-4 bg-white text-slate-900 rounded-2xl font-bold text-lg hover:pr-6 hover:pl-10 transition-all flex items-center justify-center gap-2 overflow-hidden">
                 <span className="relative z-10 flex items-center gap-2">Get Started <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" /></span>
                 <div className="absolute inset-0 bg-cyan-400 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>

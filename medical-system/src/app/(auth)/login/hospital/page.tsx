@@ -101,12 +101,7 @@ export default function HospitalLogin() {
                     </button>
                 </form>
 
-                <div className="text-center text-sm mt-8 pt-6 border-t border-border">
-                    <span className="text-muted-foreground">New Institution? </span>
-                    <Link href="/signup/hospital" className="text-secondary font-medium hover:text-secondary/80 hover:underline underline-offset-4 transition-colors">
-                        Join Network
-                    </Link>
-                </div>
+
             </div>
 
             <div className="absolute bottom-4 text-center text-xs text-muted-foreground/40 font-mono tracking-widest uppercase">

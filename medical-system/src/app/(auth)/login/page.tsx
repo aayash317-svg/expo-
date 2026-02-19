@@ -114,8 +114,8 @@ export default function UnifiedLogin() {
                                 key={role.key}
                                 onClick={() => { setSelectedRole(role.key); setError(null); }}
                                 className={`flex-1 py-2.5 px-2 rounded-lg text-xs font-bold transition-all flex flex-col items-center gap-1.5 ${isActive
-                                        ? `${rc.bg} ${rc.text} ${rc.border} border`
-                                        : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
+                                    ? `${rc.bg} ${rc.text} ${rc.border} border`
+                                    : 'text-muted-foreground hover:text-foreground hover:bg-white/5'
                                     }`}
                             >
                                 <RoleIcon className="h-4 w-4" />
@@ -175,12 +175,7 @@ export default function UnifiedLogin() {
                         </button>
                     </form>
 
-                    <div className="text-center text-sm mt-6 pt-5 border-t border-border">
-                        <span className="text-muted-foreground">Don&apos;t have an account? </span>
-                        <Link href="/signup/patient" className={`${colors.text} font-medium hover:underline underline-offset-4 transition-colors`}>
-                            Register
-                        </Link>
-                    </div>
+
                 </div>
 
                 {/* Back to Home */}

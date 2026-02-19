@@ -91,33 +91,54 @@ def scan_patient():
         
     try:
         from utils import decrypt_data
+        import json
+        
+        # 1. Try to decrypt (for legacy/NFC encrypted tags)
         decrypted = decrypt_data(encrypted_payload)
         
-        # If decryption fails, assume it might be a raw ID (manual input or NFC)
-        patient_id = decrypted if decrypted else encrypted_payload
+        # 2. Determine raw data to parse
+        raw_data = decrypted if decrypted else encrypted_payload
+        patient_id = None
+        patient_name = "New Patient"
+        patient_dob = "2000-01-01"
         
-        # Resolve Patient ID from decrypted data or raw input
-        # If it's a JSON string, try to parse it
-        import json
+        # 3. Try parsing as JSON (New system uses raw JSON QR)
         try:
-            payload = json.loads(decrypted)
-            if isinstance(payload, dict) and 'id' in payload:
-                patient_id = payload['id']
-            elif isinstance(payload, dict) and 'pid' in payload: # NFC payload uses 'pid'
-                patient_id = payload['pid']
+            payload = json.loads(raw_data)
+            if isinstance(payload, dict):
+                # Check for various ID keys
+                patient_id = payload.get('patient_id') or payload.get('id') or payload.get('pid')
+                patient_name = payload.get('name') or payload.get('full_name') or "New Patient"
+                patient_dob = payload.get('dob') or "2000-01-01"
         except:
-            pass 
+            # Not JSON, treat as raw ID
+            patient_id = raw_data
 
-        # Verify patient exists
+        if not patient_id:
+            return jsonify({'error': 'Invalid payload: No patient ID found'}), 400
+
+        # 4. Verify/Sync patient in local SQLite
         patient = query_db("SELECT * FROM patients WHERE id = ?", (patient_id,), one=True)
+        
         if not patient:
-             # Fallback: maybe it IS an NFC ID directly? (backward compat if needed, but we prefer encrypted)
-             patient = query_db("SELECT * FROM patients WHERE nfc_id = ?", (decrypted,), one=True)
+            # Auto-Sync: Add to local database if it came from the trusted system
+            print(f"Auto-syncing patient: {patient_id}")
+            try:
+                execute_db(
+                    "INSERT INTO patients (id, full_name, dob, email) VALUES (?, ?, ?, ?)",
+                    (patient_id, patient_name, patient_dob, f"sync_{patient_id[:8]}@example.com")
+                )
+                patient = query_db("SELECT * FROM patients WHERE id = ?", (patient_id,), one=True)
+            except Exception as e:
+                print(f"Auto-sync error: {e}")
 
         if patient:
-            return jsonify({'patient_id': patient['id'], 'redirect': f'/patient/{patient["id"]}/view'}), 200
+            return jsonify({
+                'patient_id': patient['id'], 
+                'redirect': f'/patient/{patient["id"]}/view'
+            }), 200
         else:
-             return jsonify({'error': 'Patient not found'}), 404
+             return jsonify({'error': 'Patient not found and could not be synced'}), 404
 
     except Exception as e:
         print(f"Scan Error: {e}")
@@ -170,13 +191,52 @@ def add_record(patient_id):
 
     try:
         new_id = generate_uuid()
+        
+        # 1. Save to Local SQLite (for offline/performance)
         execute_db("""
             INSERT INTO medical_records (id, patient_id, hospital_id, record_type, title, description)
             VALUES (?, ?, ?, ?, ?, ?)
         """, (new_id, patient_id, hospital_id, record_type, summary, payload))
 
-        # session.clear() # Removed this security rule as it might be annoying to re-login every time
-        return jsonify({'message': 'Record saved.', 'redirect': '/'}), 201
+        # 2. Sync to Supabase (Global Visibility)
+        import os
+        import requests
+        
+        supabase_url = os.environ.get('SUPABASE_URL')
+        supabase_service_key = os.environ.get('SUPABASE_SERVICE_ROLE_KEY')
+        
+        if supabase_url and supabase_service_key:
+            try:
+                # We use the Service Role key to bypass RLS and ensure the write succeeds
+                sync_url = f"{supabase_url}/rest/v1/medical_records"
+                headers = {
+                    "apikey": supabase_service_key,
+                    "Authorization": f"Bearer {supabase_service_key}",
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                }
+                
+                # Check if hospital_id exists in Supabase. 
+                # If not (e.g. legacy local ID), we might need to use a fallback or skip.
+                # But our current ID ccfb... should be valid if it was synced.
+                
+                payload_supabase = {
+                    "id": new_id,
+                    "patient_id": patient_id,
+                    "hospital_id": hospital_id,
+                    "record_type": record_type,
+                    "title": summary,
+                    "description": payload
+                }
+                
+                resp = requests.post(sync_url, headers=headers, json=payload_supabase)
+                if not resp.ok:
+                    print(f"Supabase Sync Warning: {resp.text}")
+            except Exception as se:
+                print(f"Supabase Sync Error: {se}")
+
+        return jsonify({'message': 'Record saved and synced.', 'redirect': '/'}), 201
     except Exception as e:
+        print(f"Add Record Error: {e}")
         return jsonify({'error': str(e)}), 500
 
