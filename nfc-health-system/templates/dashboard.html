@@ -1,23 +1,69 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="card">
-    <h2 style="text-align: center; margin-bottom: 30px;">Welcome, {{ session.get('user_name', 'Hospital') }}</h2>
+<div class="glass-panel" style="padding: 2rem;">
+    <div style="border: 2px solid #000; padding: 1rem; margin-bottom: 3rem; background: #000; color: #fff;">
+        <h2 style="margin: 0; font-size: 1.5rem;">USER: {{ session.get('user_name', 'PARTNER')|upper }}</h2>
+        <div style="font-family: 'IBM Plex Mono'; font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.8;">
+            ACCESS_LEVEL: AUTHORIZED | SESSION_ACTIVE
+        </div>
+    </div>
 
-    <div class="dashboard-grid">
-        <!-- Block 1: Hospital Profile -->
-        <a href="{{ url_for('hospital_profile') }}" class="dashboard-action-card">
-            <div class="action-icon">🏥</div>
-            <div class="action-title">Hospital Profile</div>
-            <p>View account details and status</p>
+    <div class="dashboard-grid"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+        <!-- Action Card 1 -->
+        <a href="{{ url_for('hospital_profile') }}" class="action-card">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🏥</div>
+            <h3>HOSPITAL_PROFILE</h3>
+            <p>VIEW_CREDENTIALS >> </p>
         </a>
 
-        <!-- Block 2: Patient Access -->
-        <a href="{{ url_for('patient_access') }}" class="dashboard-action-card">
-            <div class="action-icon">👤</div>
-            <div class="action-title">Patient Access</div>
-            <p>Scan QR or Tap NFC to access records</p>
+        <!-- Action Card 2 -->
+        <a href="{{ url_for('patient_access') }}" class="action-card">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🧬</div>
+            <h3>PATIENT_ACCESS</h3>
+            <p>INITIATE_SCAN_SEQUENCE >> </p>
+        </a>
+
+        <!-- Action Card 3 -->
+        <a href="{{ url_for('settings') }}" class="action-card">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">⚙️</div>
+            <h3>sys_config</h3>
+            <p>EDIT_SETTINGS >> </p>
         </a>
     </div>
 </div>
+
+<style>
+    .action-card {
+        border: 2px solid #000;
+        padding: 2rem;
+        display: block;
+        text-decoration: none;
+        color: #000;
+        transition: all 0.1s;
+        background: #fff;
+    }
+
+    .action-card:hover {
+        background: #000;
+        color: #fff;
+        transform: translate(-4px, -4px);
+        box-shadow: 8px 8px 0px #ccc;
+    }
+
+    .action-card h3 {
+        margin: 0 0 0.5rem 0;
+        text-decoration: underline;
+        text-decoration-thickness: 2px;
+    }
+
+    .action-card:hover h3 {
+        color: #fff;
+    }
+
+    .action-card:hover p {
+        color: #ccc;
+    }
+</style>
 {% endblock %}

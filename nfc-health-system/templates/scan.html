@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div style="width: 100%; max-width: 640px; margin: 0 auto; border: 4px solid #000; padding: 2px;">
+    <div
+        style="background: #000; color: #fff; padding: 0.5rem; display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-family: 'IBM Plex Mono'; font-weight: 700;">/// OPTICAL_SENSOR_ARRAY</span>
+        <span class="blink" style="color: #f00;">● REC</span>
+    </div>
+
+    <div style="padding: 2rem; background: #fff; position: relative;">
+        <!-- Crosshairs -->
+        <div
+            style="position: absolute; top: 50%; left: 50%; width: 20px; height: 2px; background: #f00; transform: translate(-50%, -50%); z-index: 10; pointer-events: none;">
+        </div>
+        <div
+            style="position: absolute; top: 50%; left: 50%; width: 2px; height: 20px; background: #f00; transform: translate(-50%, -50%); z-index: 10; pointer-events: none;">
+        </div>
+
+        <div id="reader" style="width: 100%; border: 2px solid #000; background: #000;"></div>
+
+        <div id="scan-status" style="margin-top: 1.5rem; border-top: 2px solid #000; padding-top: 1rem;">
+            <p style="font-family: 'IBM Plex Mono'; font-weight: 700; margin: 0;">STATUS: <span
+                    style="background: #000; color: #fff; padding: 0 4px;">AWAITING_INPUT</span></p>
+            <p style="font-family: 'IBM Plex Mono'; font-size: 0.8rem; margin: 0.5rem 0 0 0; opacity: 0.7;">>
+                ALIGN_QR_CODE_WITHIN_RETICLE</p>
+        </div>
+
+        <p id="result"
+            style="margin-top: 1rem; font-weight: 700; color: #f00; font-family: 'IBM Plex Mono'; min-height: 1.5rem;">
+        </p>
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
+<style>
+    .blink {
+        animation: blinker 1s linear infinite;
+    }
+
+    @keyframes blinker {
+        50% {
+            opacity: 0;
+        }
+    }
+
+    #reader__scan_region {
+        background: #000 !important;
+    }
+
+    #reader video {
+        mix-blend-mode: luminosity;
+    }
+
+    /* Technical B&W look */
+
+    #reader__dashboard_section_csr button {
+        background: #000 !important;
+        color: #fff !important;
+        border: 2px solid #000 !important;
+        padding: 0.5rem 1rem !important;
+        font-family: 'IBM Plex Mono' !important;
+        text-transform: uppercase !important;
+        font-weight: 700 !important;
+        cursor: pointer !important;
+        box-shadow: 4px 4px 0px #ccc !important;
+    }
+
+    #reader__dashboard_section_csr button:active {
+        box-shadow: 2px 2px 0px #ccc !important;
+        transform: translate(2px, 2px);
+    }
+</style>
+
+<script>
+    function onScanSuccess(decodedText, decodedResult) {
+        console.log(`Code matched = ${decodedText}`, decodedResult);
+        const statusEl = document.getElementById('scan-status');
+        const resultEl = document.getElementById('result');
+
+        statusEl.innerHTML = '<p style="font-family: \'IBM Plex Mono\'; font-weight: 700; margin: 0;">STATUS: <span style="background: #00f; color: #fff; padding: 0 4px;">PROCESSING_DATA</span></p>';
+
+        fetch('/api/patient/scan', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: decodedText })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.redirect) {
+                    statusEl.innerHTML = '<p style="font-family: \'IBM Plex Mono\'; font-weight: 700; margin: 0; color: #00aa00;">>> ACCESS_GRANTED</p>';
+                    setTimeout(() => window.location.href = data.redirect, 500);
+                } else {
+                    statusEl.innerHTML = '<p style="font-family: \'IBM Plex Mono\'; font-weight: 700; margin: 0; color: #f00;">>> ERROR</p>';
+                    resultEl.innerText = "! " + (data.error || "UNKNOWN_ERROR");
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                statusEl.innerHTML = '<p style="font-family: \'IBM Plex Mono\'; font-weight: 700; margin: 0; color: #f00;">>> NETWORK_FAIL</p>';
+            });
+        html5QrcodeScanner.clear();
+    }
+
+    function onScanFailure(error) { }
+
+    let html5QrcodeScanner = new Html5QrcodeScanner(
+        "reader", { fps: 10, qrbox: { width: 250, height: 250 } }, false);
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+</script>
+{% endblock %}

@@ -1,6 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
-import { Activity, Calendar, FileText, QrCode, ShieldCheck, User } from "lucide-react";
+import { Activity, Calendar, FileText, ShieldCheck, User } from "lucide-react";
 import { redirect } from "next/navigation";
+import { PatientIdentityCard } from "@/components/PatientIdentityCard";
 
 export default async function PatientDashboard() {
     const supabase = await createClient();
@@ -9,11 +10,10 @@ export default async function PatientDashboard() {
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        redirect('/login/patient');
+        redirect('/login');
     }
 
     // 2. Fetch Patient Profile & Details
-    // We join profiles to get full name
     const { data: patient, error: patientError } = await supabase
         .from('patients')
         .select(`
@@ -27,8 +27,6 @@ export default async function PatientDashboard() {
         .single();
 
     if (patientError && patientError.code !== 'PGRST116') {
-        // Only log actual errors, ignore "no rows found" (PGRST116) which is normal for new profiles
-        // eslint-disable-next-line no-console
         console.error("Patient load error:", patientError?.message || "Unknown error");
     }
 
@@ -59,11 +57,16 @@ export default async function PatientDashboard() {
                     </h1>
                     <p className="text-muted-foreground">Here's your health summary for today.</p>
                 </div>
-                <button className="flex items-center gap-2 bg-primary text-primary-foreground px-4 py-2 rounded-lg font-medium hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
-                    <QrCode className="h-4 w-4" />
-                    Show Access QR
-                </button>
             </div>
+
+            {/* NFC / QR Identity Card (Client Component) */}
+            {patient?.nfc_tag_id && patient?.qr_code_token && (
+                <PatientIdentityCard
+                    nfcTagId={patient.nfc_tag_id}
+                    qrCodeToken={patient.qr_code_token}
+                    patientId={patient.id}
+                />
+            )}
 
             {/* Quick Stats */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

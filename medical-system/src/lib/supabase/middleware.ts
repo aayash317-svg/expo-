@@ -93,6 +93,8 @@ export async function updateSession(request: NextRequest) {
             } 
             */
 
+            // Verification Gates (DISABLED FOR EXPO DEMO)
+            /*
             if (role === 'insurance' && path.startsWith("/insurance")) {
                 const { data: provider } = await supabase
                     .from('insurance_providers')
@@ -104,6 +106,7 @@ export async function updateSession(request: NextRequest) {
                     return NextResponse.redirect(new URL("/insurance/verification-pending", request.url));
                 }
             }
+            */
         }
     }
 

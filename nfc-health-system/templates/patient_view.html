@@ -46,6 +46,40 @@
         <a href="{{ url_for('add_medical_data', patient_id=patient.id) }}" class="btn-primary">➕ Add Medical Data</a>
     </div>
 
+    <!-- Digital Identity Section -->
+    <div class="card" style="margin-bottom: 20px; background: #f8fafc; border: 1px solid #e2e8f0;">
+        <h3>Digital Identity</h3>
+        <div style="display: flex; align-items: center; gap: 20px;">
+            <div>
+                <strong>NFC ID (Physical):</strong>
+                <span style="font-family: monospace; background: #fff; padding: 2px 5px; border-radius: 3px;">
+                    {{ patient.nfc_id if patient.nfc_id else 'Not assigned' }}
+                </span>
+            </div>
+            <div>
+                <strong>NFC ID (Logical/Encrypted):</strong>
+                <span
+                    style="font-family: monospace; background: #fff; padding: 2px 5px; border-radius: 3px; word-break: break-all;">
+                    {{ patient.generated_nfc_id if patient.generated_nfc_id else 'Not generated' }}
+                </span>
+            </div>
+        </div>
+        {% if patient.qr_code %}
+        <div style="margin-top: 15px;">
+            <strong>QR Code:</strong><br>
+            <!-- Assuming qr_code contains base64 image data or path. If path, allow both cases -->
+            {% if patient.qr_code.startswith('data:image') %}
+            <img src="{{ patient.qr_code }}" alt="Patient QR"
+                style="max-width: 150px; border: 1px solid #ccc; padding: 5px; background: white;">
+            {% else %}
+            <img src="{{ url_for('static', filename=patient.qr_code) }}" alt="Patient QR"
+                style="max-width: 150px; border: 1px solid #ccc; padding: 5px; background: white;">
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+
+
     <div class="alert"
         style="background: #fff3cd; color: #856404; padding: 10px; border-radius: 4px; margin-bottom: 20px; font-size: 0.9rem;">
         ⚠️ <strong>Read-Only Access:</strong> Historical records cannot be modified or deleted.

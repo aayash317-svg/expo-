@@ -93,23 +93,8 @@ export default function HospitalDashboard() {
                 )}
             </div>
 
-            {/* Stats Overview */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <DashboardCard
-                    title="Patients Seen Today"
-                    value="42"
-                    icon={<Users className="h-5 w-5 text-blue-500" />}
-                />
-                <DashboardCard
-                    title="Records Updated"
-                    value="156"
-                    icon={<ClipboardList className="h-5 w-5 text-emerald-500" />}
-                />
-                <DashboardCard
-                    title="Pending Approvals"
-                    value="8"
-                    icon={<UserCheck className="h-5 w-5 text-orange-500" />}
-                />
+            <div className="bg-muted/10 border border-border/50 rounded-xl p-6 text-center text-sm text-muted-foreground">
+                <p>Use the NFC Scanner to securely access patient records.</p>
             </div>
         </div>
     )

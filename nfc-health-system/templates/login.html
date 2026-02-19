@@ -1,23 +1,137 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="auth-container" style="max-width: 400px; margin: 50px auto;">
-    <div class="card">
-        <h2 style="text-align: center; margin-bottom: 20px;">Hospital Login</h2>
-        <form id="login-form">
-            <div class="form-group">
-                <label for="council_id">Medical Council ID</label>
-                <input type="text" id="council_id" name="council_id" required>
+<div class="auth-container" style="display: flex; align-items: center; justify-content: center; min-height: 80vh;">
+    <div class="glass-panel"
+        style="width: 100%; max-width: 420px; padding: 3rem; position: relative; overflow: hidden;">
+
+        <!-- Decoration Orb -->
+        <div
+            style="position: absolute; top: -50px; right: -50px; width: 150px; height: 150px; background: var(--primary); filter: blur(80px); opacity: 0.3; border-radius: 50%;">
+        </div>
+        <div
+            style="position: absolute; bottom: -30px; left: -30px; width: 100px; height: 100px; background: var(--secondary); filter: blur(60px); opacity: 0.3; border-radius: 50%;">
+        </div>
+
+        <div style="text-align: center; margin-bottom: 2.5rem; position: relative;">
+            <div style="font-size: 3rem; margin-bottom: 1rem; filter: drop-shadow(0 0 10px var(--primary-glow));">🧬
             </div>
+            <h2 class="text-gradient" style="font-size: 2rem; margin: 0;">Portal Access</h2>
+            <p style="color: var(--text-muted);">Secure Medical Identity</p>
+        </div>
+
+        <form id="login-form" style="position: relative;">
+            <div class="form-group">
+                <label for="role">Select Identity</label>
+                <select id="role" name="role" class="form-control" onchange="updateLoginField()">
+                    <option value="hospital">Hospital Staff</option>
+                    <option value="insurance">Insurance Provider</option>
+                    <option value="admin">System Administrator</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="id-group">
+                <label for="login_id" id="login-label">Medical Council ID</label>
+                <input type="text" id="login_id" name="login_id" required class="form-control" placeholder="HOSP...">
+            </div>
+
             <div class="form-group">
                 <label for="password">Password</label>
-                <input type="password" id="password" name="password" required>
+                <input type="password" id="password" name="password" required class="form-control"
+                    placeholder="••••••••">
             </div>
-            <button type="submit" class="btn-primary" style="width: 100%;">Login</button>
+
+            <button type="submit" class="btn-primary" style="width: 100%; margin-top: 1rem;">
+                Authenticate System
+            </button>
         </form>
-        <div class="footer-login">
-            <a href="{{ url_for('register') }}">Register new Hospital</a>
+
+        <div class="footer-login"
+            style="margin-top: 2rem; text-align: center; border-top: 1px solid var(--glass-border); padding-top: 1.5rem;">
+            <a href="{{ url_for('register') }}" style="font-size: 0.9rem; opacity: 0.7;">Request New Credentials</a>
+        </div>
+
+        <div id="error-message"
+            style="color: var(--accent); text-align: center; margin-top: 1rem; min-height: 1.5rem; font-weight: 500; font-size: 0.9rem;">
         </div>
     </div>
 </div>
+
+<script>
+    function updateLoginField() {
+        const role = document.getElementById('role').value;
+        const label = document.getElementById('login-label');
+        const input = document.getElementById('login_id');
+
+        if (role === 'hospital') {
+            label.textContent = 'Medical Council ID';
+            input.placeholder = 'e.g., HOSP001';
+        } else if (role === 'insurance') {
+            label.textContent = 'License Number';
+            input.placeholder = 'e.g., INS001';
+        } else if (role === 'admin') {
+            label.textContent = 'Username';
+            input.placeholder = 'e.g., admin';
+        }
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const role = document.getElementById('role').value;
+        const loginId = document.getElementById('login_id').value;
+        const password = document.getElementById('password').value;
+        const errorDiv = document.getElementById('error-message');
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerText;
+
+        submitBtn.disabled = true;
+        submitBtn.innerText = 'Verifying Identity...';
+        errorDiv.textContent = '';
+
+        let payload = { password: password };
+        if (role === 'hospital') payload.council_id = loginId;
+        if (role === 'insurance') payload.license_number = loginId;
+        if (role === 'admin') payload.username = loginId;
+
+        try {
+            const response = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                if (result.redirect) {
+                    window.location.href = result.redirect;
+                } else if (role === 'admin') {
+                    window.location.href = '/admin/dashboard';
+                } else {
+                    window.location.href = '/dashboard';
+                }
+            } else {
+                errorDiv.textContent = result.error || 'Access Denied';
+                submitBtn.disabled = false;
+                submitBtn.innerText = originalText;
+
+                // Shake effect
+                document.querySelector('.glass-panel').animate([
+                    { transform: 'translateX(0)' },
+                    { transform: 'translateX(-5px)' },
+                    { transform: 'translateX(5px)' },
+                    { transform: 'translateX(0)' }
+                ], { duration: 300 });
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            errorDiv.textContent = 'Connection Failure';
+            submitBtn.disabled = false;
+            submitBtn.innerText = originalText;
+        }
+    });
+
+    // Initial call
+    updateLoginField();
+</script>
 {% endblock %}

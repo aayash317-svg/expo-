@@ -1,116 +1,116 @@
-"use client";
+'use client';
 
 import Link from "next/link";
-import { ArrowLeft, Stethoscope, Loader2 } from "lucide-react";
+import { ArrowLeft, Activity, User, Lock, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRouter } from "next/navigation";
 
 export default function HospitalLogin() {
-    const [isLoading, setIsLoading] = useState(false);
-    const [error, setError] = useState("");
     const router = useRouter();
-    const supabase = createClient();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
 
-    async function handleLogin(e: React.FormEvent<HTMLFormElement>) {
+    async function handleLogin(e: React.FormEvent) {
         e.preventDefault();
-        setIsLoading(true);
-        setError("");
+        setLoading(true);
+        setError(null);
 
-        const formData = new FormData(e.currentTarget);
-        const councilId = formData.get("hospital-id") as string;
-        const password = formData.get("password") as string;
+        const supabase = createClient();
 
-        if (!councilId || !password) {
-            setError("Please fill in all fields");
-            setIsLoading(false);
-            return;
-        }
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password
+        });
 
-        // Logic: Convert Council ID to System Email (Same as Flask)
-        const systemEmail = `${councilId.trim().toLowerCase().replace(" ", "")}@nfc-health.system`;
-
-        try {
-            const { error: authError } = await supabase.auth.signInWithPassword({
-                email: systemEmail,
-                password: password,
-            });
-
-            if (authError) {
-                if (authError.message.includes("Invalid login")) {
-                    setError("Invalid Council ID or Password");
-                } else {
-                    setError(authError.message);
-                }
-            } else {
-                router.push("/hospital");
-                router.refresh();
-            }
-        } catch (err) {
-            setError("An unexpected error occurred");
-        } finally {
-            setIsLoading(false);
+        if (error) {
+            setError(error.message);
+            setLoading(false);
+        } else {
+            router.push('/dashboard/hospital'); // Verify correct redirect
+            router.refresh();
         }
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-muted/30 p-4">
-            <div className="w-full max-w-md bg-card border border-border rounded-2xl shadow-xl overflow-hidden">
-                <div className="p-8 space-y-6">
-                    <div className="flex items-center gap-2 mb-2">
-                        <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors">
-                            <ArrowLeft className="h-5 w-5" />
-                        </Link>
-                        <span className="font-semibold text-sm text-muted-foreground uppercase tracking-wider">Back to Home</span>
-                    </div>
+        <div className="min-h-screen flex items-center justify-center bg-background p-4 relative overflow-hidden">
+            {/* Background Orbs */}
+            <div className="absolute bottom-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-[128px] pointer-events-none" />
+            <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-secondary/20 rounded-full blur-[128px] pointer-events-none" />
 
-                    <div className="space-y-2 text-center">
-                        <div className="h-12 w-12 bg-emerald-500/10 text-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4">
-                            <Stethoscope className="h-6 w-6" />
-                        </div>
-                        <h1 className="text-3xl font-bold tracking-tight">Provider Portal</h1>
-                        <p className="text-muted-foreground">Authorized medical personnel access</p>
-                    </div>
+            <div className="w-full max-w-md glass p-8 relative z-10 transition-all duration-500 animate-in fade-in zoom-in-95 border-primary/20">
+                <div className="flex items-center gap-2 mb-8">
+                    <Link href="/" className="text-muted-foreground hover:text-foreground transition-colors flex items-center gap-2 text-sm font-medium group">
+                        <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
+                        Return to Portal
+                    </Link>
+                </div>
 
-                    <form onSubmit={handleLogin} className="space-y-4">
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium leading-none" htmlFor="hospital-id">Hospital ID / Council ID</label>
+                <div className="text-center mb-8">
+                    <div className="h-16 w-16 bg-secondary/10 text-secondary rounded-2xl flex items-center justify-center mx-auto mb-4 border border-secondary/20 shadow-[0_0_20px_rgba(139,92,246,0.2)]">
+                        <Activity className="h-8 w-8" />
+                    </div>
+                    <h1 className="text-3xl font-bold tracking-tight text-foreground mb-2">Hospital Node</h1>
+                    <p className="text-muted-foreground">Authorized Personnel Only</p>
+                </div>
+
+                {error && (
+                    <div className="p-4 mb-6 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg flex items-center gap-2 animate-in slide-in-from-top-2">
+                        <Activity className="h-4 w-4" />
+                        {error}
+                    </div>
+                )}
+
+                <form onSubmit={handleLogin} className="space-y-5">
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground ml-1" htmlFor="email">Hospital ID / Email</label>
+                        <div className="relative group">
+                            <User className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-secondary transition-colors" />
                             <input
-                                id="hospital-id"
-                                name="hospital-id"
-                                type="text"
-                                placeholder="HOSP-XXXXX"
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                id="email"
+                                type="email"
+                                placeholder="admin@hospital.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                className="flex h-12 w-full rounded-xl border border-input bg-black/20 pl-11 pr-4 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all"
+                                required
                             />
                         </div>
-                        <div className="space-y-2">
-                            <label className="text-sm font-medium leading-none" htmlFor="password">Password</label>
+                    </div>
+
+                    <div className="space-y-2">
+                        <label className="text-sm font-medium text-muted-foreground ml-1" htmlFor="password">Access Key</label>
+                        <div className="relative group">
+                            <Lock className="absolute left-3 top-3 h-5 w-5 text-muted-foreground group-focus-within:text-secondary transition-colors" />
                             <input
                                 id="password"
-                                name="password"
                                 type="password"
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                placeholder="••••••••"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="flex h-12 w-full rounded-xl border border-input bg-black/20 pl-11 pr-4 py-2 text-sm text-foreground placeholder:text-muted-foreground/50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-secondary focus-visible:border-transparent transition-all"
+                                required
                             />
                         </div>
-
-                        {error && (
-                            <div className="text-sm text-red-500 bg-red-50 p-2 rounded border border-red-200">
-                                {error}
-                            </div>
-                        )}
-
-                        <button
-                            disabled={isLoading}
-                            className="w-full h-10 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md font-medium transition-colors flex items-center justify-center gap-2"
-                        >
-                            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Login as Provider"}
-                        </button>
-                    </form>
-
-                    <div className="p-4 bg-emerald-50 rounded-lg border border-emerald-100 text-xs text-emerald-800">
-                        <strong>Security Notice:</strong> All access is logged and audited. Use Physical Security Key if issued.
                     </div>
+
+                    <button disabled={loading} className="w-full h-12 bg-secondary hover:bg-secondary/90 text-secondary-foreground rounded-xl font-bold transition-all shadow-lg shadow-secondary/20 hover:shadow-secondary/40 hover:-translate-y-0.5 flex items-center justify-center gap-2 mt-2">
+                        {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Verify Credentials"}
+                    </button>
+                </form>
+
+                <div className="text-center text-sm mt-8 pt-6 border-t border-border">
+                    <span className="text-muted-foreground">New Institution? </span>
+                    <Link href="/signup/hospital" className="text-secondary font-medium hover:text-secondary/80 hover:underline underline-offset-4 transition-colors">
+                        Join Network
+                    </Link>
                 </div>
+            </div>
+
+            <div className="absolute bottom-4 text-center text-xs text-muted-foreground/40 font-mono tracking-widest uppercase">
+                Restricted Access Zone
             </div>
         </div>
     )

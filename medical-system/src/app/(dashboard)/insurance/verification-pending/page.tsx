@@ -21,9 +21,14 @@ export default function InsuranceVerificationPending() {
                 Please verify this account manually in the database by setting
                 `verified = true` in the `insurance_providers` table.
             </div>
-            <Link href="/" className="text-blue-600 hover:underline">
-                Return to Home
-            </Link>
+            <div className="flex flex-col gap-3 items-center">
+                <a href="/auth/signout?redirect=/" className="text-blue-600 hover:underline font-medium">
+                    Return to Home
+                </a>
+                <a href="/auth/signout?redirect=/login/admin" className="text-sm text-red-500 hover:underline">
+                    Switch to Admin Login
+                </a>
+            </div>
         </div>
     )
 }

@@ -1,0 +1,49 @@
+
+============================================================
+TEST 1: Patient Registration
+============================================================
+  [PASS] Patient auth.sign_up - User ID: ea918ae4-e310-42d8-a7a7-4f688d6eb768
+  [PASS] Patient profile created - Role: patient
+  [PASS] Patient record created
+
+============================================================
+TEST 2: Hospital Registration
+============================================================
+  [PASS] Hospital auth.sign_up - User ID: c144ac8d-0605-4851-8d4e-1d1762da453f
+  [PASS] Hospital profile created - Role: hospital
+  [PASS] Hospital record created - Name: N/A
+
+============================================================
+TEST 3: Insurance Registration
+============================================================
+  [PASS] Insurance auth.sign_up - User ID: f0c84b8f-e87b-4b06-ad6f-577d978562fd
+  [PASS] Insurance profile created - Role: insurance
+  [PASS] Insurance provider record created
+
+============================================================
+TEST 4: Admin Login
+============================================================
+  [PASS] Admin sign_in - User ID: 175932f5-0195-4ec4-a1e0-23efe3eefafe
+  [PASS] Admin role verified
+
+============================================================
+TEST 5: Frontend Route Check
+============================================================
+  [PASS] Route Home Page (/) - HTTP 200
+  [PASS] Route Patient Login (/login/patient) - HTTP 200
+  [PASS] Route Hospital Login (/login/hospital) - HTTP 200
+  [PASS] Route Insurance Login (/login/insurance) - HTTP 200
+  [PASS] Route Admin Login (/login/admin) - HTTP 200
+  [PASS] Route Signout Route (/auth/signout) - HTTP 200
+
+============================================================
+SUMMARY
+============================================================
+
+  Total Tests: 17
+  Passed:      17
+  Failed:      0
+  Pass Rate:   100%
+
+
+============================================================

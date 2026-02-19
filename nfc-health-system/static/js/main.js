@@ -59,10 +59,13 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    // Login and Registration are handled by page-specific scripts to manage role-based payloads
+    /*
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
         loginForm.addEventListener('submit', (e) => handleFormSubmit(e, '/api/auth/login'));
     }
+    */
 
     const registerForm = document.getElementById('register-form');
     if (registerForm) {

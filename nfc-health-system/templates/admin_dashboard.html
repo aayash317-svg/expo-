@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="glass-panel" style="padding: 2.5rem;">
+    <div
+        style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 2.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--glass-border);">
+        <div>
+            <h2 class="text-gradient" style="margin: 0; font-size: 2.5rem;">Admin Console</h2>
+            <p style="color: var(--text-muted); margin: 0.5rem 0 0 0;">System Oversight & Data Requests</p>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 3rem; font-weight: 700; color: var(--text-main); line-height: 1;">{{ requests|length
+                }}</div>
+            <div
+                style="font-size: 0.85rem; color: var(--primary); font-weight: 600; text-transform: uppercase; letter-spacing: 1px;">
+                Pending Items</div>
+        </div>
+    </div>
+
+    {% if requests %}
+    <div class="requests-grid">
+        {% for req in requests %}
+        <div class="glass-panel"
+            style="padding: 1.5rem; background: rgba(30, 41, 59, 0.6); transition: transform 0.3s; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--secondary);">
+            </div>
+
+            <div style="display: flex; justify-content: space-between; margin-bottom: 1rem;">
+                <span
+                    style="font-family: 'Space Grotesk'; font-size: 1.1rem; color: var(--text-main); font-weight: 600;">{{
+                    req.patient_name }}</span>
+                <span
+                    style="font-size: 0.8rem; padding: 2px 8px; border-radius: 12px; background: rgba(139, 92, 246, 0.1); color: var(--secondary);">ID:
+                    {{ req.id[:6] }}</span>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <p style="margin: 0; font-size: 0.9rem; color: var(--text-muted);">Policy No: <span
+                        style="color: var(--text-main);">{{ req.policy_number }}</span></p>
+                <p style="margin: 0; font-size: 0.8rem; color: var(--text-muted); opacity: 0.7;">{{ req.created_at }}
+                </p>
+            </div>
+
+            <a href="{{ url_for('admin_medical_entry', request_id=req['id']) }}" class="btn-primary"
+                style="padding: 0.8rem; font-size: 0.9rem; width: 100%; box-sizing: border-box;">
+                Review Request
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div style="text-align: center; padding: 5rem; color: var(--text-muted);">
+        <div style="font-size: 4rem; opacity: 0.2; margin-bottom: 1rem;">✓</div>
+        <p style="font-size: 1.2rem;">All systems operational. No pending actions.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -8,11 +8,11 @@ import {
     Settings,
     Bell,
     LogOut,
-    ShieldCheck
+    ShieldCheck,
+    UserPlus
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
-import { SignOutButton } from "@/components/auth-buttons";
 
 export default async function InsuranceLayout({
     children,
@@ -23,10 +23,9 @@ export default async function InsuranceLayout({
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        redirect("/login/insurance");
+        redirect("/login");
     }
 
-    // Get profile data for the header
     const { data: profile } = await supabase
         .from('profiles')
         .select('full_name')
@@ -37,6 +36,7 @@ export default async function InsuranceLayout({
 
     const navItems = [
         { name: "Dashboard", href: "/insurance", icon: LayoutDashboard },
+        { name: "Register Patient", href: "/insurance/register-patient", icon: UserPlus },
         { name: "Policy Management", href: "/insurance/policies", icon: FileText },
         { name: "Customers", href: "/insurance/customers", icon: Users },
         { name: "Claims", href: "/insurance/claims", icon: FileCheck },
@@ -45,76 +45,74 @@ export default async function InsuranceLayout({
     ];
 
     return (
-        <div className="flex h-screen bg-slate-50 font-sans">
+        <div className="flex h-screen bg-[#0a0e1a] font-sans">
             {/* Sidebar */}
-            <aside className="w-64 bg-white border-r border-slate-200 hidden md:flex flex-col">
-                <div className="p-6 border-b border-slate-100 flex items-center gap-2">
-                    <div className="bg-blue-900 text-white p-1.5 rounded-lg">
-                        <ShieldCheck className="h-6 w-6" />
+            <aside className="w-64 bg-[#0d1221] border-r border-white/[0.06] hidden md:flex flex-col">
+                <div className="p-6 border-b border-white/[0.06] flex items-center gap-3">
+                    <div className="bg-gradient-to-br from-blue-600 to-cyan-500 p-2 rounded-xl shadow-lg shadow-blue-500/20">
+                        <ShieldCheck className="h-5 w-5 text-white" />
                     </div>
                     <div>
-                        <h1 className="font-bold text-slate-900 leading-none">INSURANCE</h1>
-                        <p className="text-xs text-slate-500 font-medium tracking-wider mt-1">DEPARTMENT</p>
+                        <h1 className="font-bold text-white text-sm leading-none">INSURANCE</h1>
+                        <p className="text-[10px] text-blue-400/60 font-medium tracking-widest mt-0.5">DEPARTMENT</p>
                     </div>
                 </div>
 
-                <nav className="flex-1 p-4 space-y-1">
+                <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
                     {navItems.map((item) => (
                         <Link
                             key={item.name}
                             href={item.href}
-                            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-slate-600 rounded-lg hover:bg-slate-50 hover:text-blue-700 transition-colors group"
+                            className="flex items-center gap-3 px-3 py-2.5 text-sm font-medium text-white/50 rounded-xl hover:bg-white/[0.06] hover:text-white transition-all duration-200 group"
                         >
-                            <item.icon className="h-5 w-5 text-slate-400 group-hover:text-blue-600" />
+                            <item.icon className="h-4.5 w-4.5 text-white/30 group-hover:text-blue-400 transition-colors" />
                             {item.name}
                         </Link>
                     ))}
                 </nav>
 
-                <div className="p-4 border-t border-slate-100">
-                    {/* Placeholder for footer info or additional links */}
-                    <div className="text-xs text-slate-400 text-center">v1.2.0 • Secure Portal</div>
+                <div className="p-4 border-t border-white/[0.06]">
+                    <div className="text-[10px] text-white/20 text-center tracking-wider">v1.2.0 • Secure Portal</div>
                 </div>
             </aside>
 
             {/* Main Content */}
             <div className="flex-1 flex flex-col overflow-hidden">
                 {/* Top Header */}
-                <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 shadow-sm z-10">
-                    <div className="flex items-center gap-4">
-                        <h2 className="text-xl font-semibold text-slate-800">Overview</h2>
+                <header className="h-16 bg-[#0d1221]/80 backdrop-blur-xl border-b border-white/[0.06] flex items-center justify-between px-6 z-10">
+                    <div className="flex items-center gap-3">
+                        <div className="h-2 w-2 bg-blue-500 rounded-full" />
+                        <h2 className="text-base font-semibold text-white/80">Insurance Portal</h2>
                     </div>
 
-                    <div className="flex items-center gap-4">
-                        <button className="p-2 text-slate-400 hover:text-slate-600 hover:bg-slate-100 rounded-full transition-colors relative">
-                            <Bell className="h-5 w-5" />
-                            <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-red-500 rounded-full border border-white"></span>
+                    <div className="flex items-center gap-3">
+                        <button className="relative p-2 text-white/30 hover:text-white/60 hover:bg-white/[0.06] rounded-xl transition-all">
+                            <Bell className="h-4.5 w-4.5" />
+                            <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-red-500 rounded-full ring-2 ring-[#0d1221]" />
                         </button>
 
-                        <div className="h-6 w-px bg-slate-200 mx-1"></div>
+                        <div className="h-5 w-px bg-white/[0.06]" />
 
                         <div className="flex items-center gap-3">
                             <div className="text-right hidden sm:block">
-                                <p className="text-sm font-medium text-slate-900">{userName}</p>
-                                <p className="text-xs text-slate-500">Insurance Officer</p>
+                                <p className="text-sm font-medium text-white/80">{userName}</p>
+                                <p className="text-[10px] text-white/30 uppercase tracking-wider">Insurance Officer</p>
                             </div>
-                            <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold border border-blue-200">
+                            <div className="h-9 w-9 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-blue-500/20">
                                 {userName.charAt(0)}
                             </div>
                         </div>
 
-                        <div className="ml-2">
-                            <form action="/auth/signout" method="post">
-                                <button className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-full transition-colors" title="Sign Out">
-                                    <LogOut className="h-5 w-5" />
-                                </button>
-                            </form>
-                        </div>
+                        <form action="/auth/signout" method="post">
+                            <button className="p-2 text-white/30 hover:text-red-400 hover:bg-red-500/10 rounded-xl transition-all" title="Sign Out">
+                                <LogOut className="h-4.5 w-4.5" />
+                            </button>
+                        </form>
                     </div>
                 </header>
 
                 {/* Page Content */}
-                <main className="flex-1 overflow-y-auto bg-slate-50 p-6">
+                <main className="flex-1 overflow-y-auto bg-[#0a0e1a] p-6">
                     {children}
                 </main>
             </div>

@@ -10,7 +10,7 @@ export function SignOutButton() {
 
     const handleSignOut = async () => {
         await supabase.auth.signOut();
-        router.push("/login/insurance");
+        router.push("/");
         router.refresh();
     };
 

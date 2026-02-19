@@ -5,20 +5,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NFC Health ID System</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- Google Fonts for Typography -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Premium Design System -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/premium_theme.css') }}">
+    <!-- Fonts loaded in CSS via @import, but preconnect for performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 
 <body class="{% if session.get('user_id') %}logged-in{% endif %}">
 
     {% if session.get('user_id') %}
-    <!-- DASHBOARD LAYOUT (Sidebar + Main Content) -->
+    <!-- LOGGED IN DASHBOARD -->
     <div class="dashboard-container">
-        <!-- Sidebar -->
+        <!-- Glass Sidebar -->
         <aside class="sidebar">
-            <div class="sidebar-header">
-                <div class="logo">🏥 NFC Health</div>
+            <div class="logo">
+                <span class="icon">🧬</span> NFC Health
             </div>
 
             <nav class="sidebar-nav">
@@ -40,16 +42,20 @@
                 </a>
             </nav>
 
-            <div class="sidebar-footer">
-                <a href="{{ url_for('logout') }}" class="btn-secondary"
-                    style="display: block; text-align: center; text-decoration: none;">Sign Out</a>
+            <div style="margin-top: auto;">
+                <a href="{{ url_for('logout') }}" class="sidebar-link" style="color: var(--accent);">
+                    Sign Out
+                </a>
             </div>
         </aside>
 
         <!-- Main Content -->
         <main class="main-content">
             <header class="top-bar">
-                <span class="user-info">Logged in as: <strong>{{ session.get('user_name', 'User') }}</strong></span>
+                <span class="user-info">
+                    <span style="opacity: 0.7;">Logged in as:</span>
+                    <strong style="color: var(--primary);">{{ session.get('user_name', 'User') }}</strong>
+                </span>
             </header>
 
             <div class="content-wrapper">
@@ -59,16 +65,14 @@
     </div>
 
     {% else %}
-    <!-- PUBLIC/AUTH LAYOUT (Centered) -->
+    <!-- PUBLIC / AUTH LAYOUT -->
     <div class="app-container">
         <header class="app-header">
             <div class="logo">
-                <span class="icon">🏥</span> NFC Health ID
+                <span class="icon">🧬</span> <span class="text-gradient">NFC Health ID</span>
             </div>
-            <nav>
-                <a href="{{ url_for('index') }}" class="nav-link">Login</a>
-                <a href="{{ url_for('register') }}" class="nav-link">Register</a>
-            </nav>
+            <!-- Hidden nav for clean login page -->
+            <nav></nav>
         </header>
 
         <main class="app-content">
@@ -76,7 +80,7 @@
         </main>
 
         <footer class="app-footer">
-            <p>&copy; 2026 NFC Health ID System. Secure & Immutable.</p>
+            <p>&copy; 2026 NFC Health ID System. <span style="opacity: 0.5;">Next Gen Medical Records.</span></p>
         </footer>
     </div>
     {% endif %}
@@ -84,7 +88,7 @@
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
     {% block scripts %}{% endblock %}
 
-    <!-- Define content block once -->
+    <!-- Content Block Definition -->
     <div style="display:none;">{% block content %}{% endblock %}</div>
 </body>
 

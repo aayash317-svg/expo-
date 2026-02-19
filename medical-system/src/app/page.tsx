@@ -1,126 +1,88 @@
 import Link from "next/link";
-import { ArrowRight, Shield, Stethoscope, FileText } from "lucide-react";
+import { ArrowRight, Shield, Activity, FileText } from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen bg-background flex flex-col">
-      <header className="px-6 py-4 flex items-center justify-between border-b border-border/40 backdrop-blur-md sticky top-0 z-50">
+    <div className="min-h-screen flex flex-col font-sans selection:bg-cyan-500/30 selection:text-cyan-200">
+      {/* Navbar */}
+      <header className="px-6 py-6 flex items-center justify-between relative z-50">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 bg-primary rounded-lg flex items-center justify-center">
-            <Shield className="h-5 w-5 text-primary-foreground" />
+          <div className="h-10 w-10 bg-cyan-500/20 rounded-xl flex items-center justify-center border border-cyan-500/50 backdrop-blur-sm shadow-[0_0_15px_rgba(6,182,212,0.3)]">
+            <Shield className="h-6 w-6 text-cyan-400" />
           </div>
-          <span className="font-bold text-xl tracking-tight">HealthOne</span>
+          <span className="font-bold text-xl tracking-tight text-white">NFC<span className="text-cyan-400">Health</span></span>
         </div>
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-muted-foreground">
-          <Link href="#features" className="hover:text-foreground transition-colors">Features</Link>
-          <Link href="#security" className="hover:text-foreground transition-colors">Security</Link>
-          <Link href="#about" className="hover:text-foreground transition-colors">About</Link>
-        </nav>
+
         <div className="flex items-center gap-4">
-          <Link href="/login/patient" className="text-sm font-medium hover:text-primary transition-colors">
-            Login
-          </Link>
-          <Link href="/signup/patient" className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-full text-sm font-medium transition-all shadow-lg shadow-primary/20">
-            Get Started
+          <Link href="/login" className="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 px-5 py-2 rounded-full text-sm font-semibold border border-cyan-500/20 transition-all">
+            Sign In
           </Link>
         </div>
       </header>
 
       <main className="flex-1 flex flex-col">
-        {/* Hero Section */}
-        <section className="flex-1 flex flex-col items-center justify-center text-center px-4 py-20 md:py-32 relative overflow-hidden">
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-primary/20 via-background to-background opacity-50" />
+        {/* Glow Hero */}
+        <section className="flex-1 flex flex-col items-center justify-center text-center px-4 py-20 relative overflow-hidden">
 
-          <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-5 duration-1000">
-            <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight leading-tight">
-              One Identity. <br />
-              <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-blue-600">
-                Complete Health History.
+          {/* Center Glow Orb */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-500/20 rounded-full blur-[120px] pointer-events-none" />
+
+          <div className="max-w-4xl mx-auto space-y-8 relative z-10">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/50 border border-slate-700 text-xs font-medium text-cyan-400 backdrop-blur-md mb-4">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+              </span>
+              System Operational
+            </div>
+
+            <h1 className="text-5xl md:text-7xl font-bold tracking-tight leading-tight text-white">
+              The Future of <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-purple-500">
+                Medical Identity.
               </span>
             </h1>
-            <p className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-              A secure, unified platform connecting patients, hospitals, and insurers.
-              Access your medical life anytime, anywhere with verifiable cryptographic security.
+
+            <p className="text-xl text-slate-400 max-w-2xl mx-auto leading-relaxed">
+              Cryptographically secure health records accessible via NFC.
+              Connecting patients, hospitals, and insurers in a trustless network.
             </p>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-8">
-              <Link href="/signup/patient" className="w-full sm:w-auto px-8 py-3 bg-primary text-primary-foreground rounded-full font-semibold text-lg hover:translate-y-0.5 hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                Register as Patient <ArrowRight className="h-4 w-4" />
+              <Link href="/signup/patient"
+                className="group relative w-full sm:w-auto px-8 py-4 bg-white text-slate-900 rounded-2xl font-bold text-lg hover:pr-6 hover:pl-10 transition-all flex items-center justify-center gap-2 overflow-hidden">
+                <span className="relative z-10 flex items-center gap-2">Get Started <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" /></span>
+                <div className="absolute inset-0 bg-cyan-400 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
               </Link>
-              <div className="flex gap-2">
-                <Link href="/login/hospital" className="w-full sm:w-auto px-6 py-3 bg-secondary text-secondary-foreground border border-border rounded-full font-semibold text-lg hover:bg-secondary/80 transition-all flex items-center justify-center gap-2">
-                  Hospitals
-                </Link>
-                <Link href="/login/insurance" className="w-full sm:w-auto px-6 py-3 bg-secondary text-secondary-foreground border border-border rounded-full font-semibold text-lg hover:bg-secondary/80 transition-all flex items-center justify-center gap-2">
-                  Insurers
-                </Link>
-              </div>
+
+              <Link href="/login"
+                className="w-full sm:w-auto px-8 py-4 bg-slate-800/50 text-white border border-slate-700 rounded-2xl font-semibold text-lg hover:bg-slate-800 hover:border-cyan-500/50 transition-all backdrop-blur-sm">
+                Sign In
+              </Link>
             </div>
           </div>
         </section>
 
-        {/* Portals Grid */}
-        <section className="px-6 py-20 bg-muted/50">
-          <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-            <PortalCard
-              title="Hospital Portal"
-              description="Secure access for medical professionals to view history and update records."
-              icon={<Stethoscope className="h-6 w-6" />}
-              href="/login/hospital"
-              signupHref="/signup/hospital"
-              color="text-emerald-500"
-            />
-            <PortalCard
-              title="Insurance Portal"
-              description="Real-time policy management, claims processing, and coverage verification."
-              icon={<FileText className="h-6 w-6" />}
-              href="/login/insurance"
-              signupHref="/signup/insurance"
-              color="text-blue-500"
-            />
-            <PortalCard
-              title="Patient Portal"
-              description="Your complete health timeline. Manage consents and view records securely."
-              icon={<Shield className="h-6 w-6" />}
-              href="/login/patient"
-              signupHref="/signup/patient"
-              color="text-indigo-500"
-            />
-          </div>
-        </section>
       </main>
 
-      <footer className="px-6 py-8 border-t border-border mt-auto">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-muted-foreground">
-          <p>&copy; 2026 HealthOne Systems. All rights reserved.</p>
-          <div className="flex items-center gap-6">
-            <Link href="#" className="hover:text-foreground">Privacy</Link>
-            <Link href="#" className="hover:text-foreground">Terms</Link>
-            <Link href="#" className="hover:text-foreground">Compliance</Link>
-          </div>
-        </div>
+      <footer className="py-8 border-t border-slate-800/50 text-center text-slate-500 text-sm flex justify-between px-8">
+        <p>&copy; 2026 NFC Health System. Secured by Cryptography.</p>
+        <Link href="/login" className="hover:text-cyan-400 transition-colors">Sign In</Link>
       </footer>
     </div>
   );
 }
 
-function PortalCard({ title, description, icon, href, signupHref, color }: { title: string, description: string, icon: React.ReactNode, href: string, signupHref: string, color: string }) {
+function GlassCard({ title, desc, icon }: { title: string, desc: string, icon: React.ReactNode }) {
   return (
-    <div className="group relative bg-card hover:bg-accent/50 p-6 rounded-2xl border border-border hover:border-primary/50 transition-all hover:shadow-lg flex flex-col">
-      <div className={`h-12 w-12 rounded-xl bg-background border border-border flex items-center justify-center mb-4 ${color} group-hover:scale-110 transition-transform`}>
+    <div className="p-8 rounded-3xl bg-slate-900/40 border border-white/5 hover:border-cyan-500/30 transition-all hover:bg-slate-800/40 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] group">
+      <div className="mb-6 h-12 w-12 rounded-2xl bg-slate-800/50 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
         {icon}
       </div>
-      <h3 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{title}</h3>
-      <p className="text-muted-foreground mb-4 flex-1">{description}</p>
-
-      <div className="grid grid-cols-2 gap-3 mt-auto">
-        <Link href={href} className="text-sm font-medium text-center py-2 bg-secondary rounded-lg hover:bg-secondary/80 transition-colors">
-          Login
-        </Link>
-        <Link href={signupHref} className="text-sm font-medium text-center py-2 bg-primary/10 text-primary rounded-lg hover:bg-primary/20 transition-colors">
-          Register
-        </Link>
-      </div>
+      <h3 className="text-xl font-bold text-white mb-3">{title}</h3>
+      <p className="text-slate-400 leading-relaxed">
+        {desc}
+      </p>
     </div>
   )
 }

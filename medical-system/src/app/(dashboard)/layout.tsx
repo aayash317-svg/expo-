@@ -34,20 +34,26 @@ export default async function DashboardLayout({
     }
 
     // Dynamic Links Configuration
+    // Dynamic Links Configuration
     if (role === 'hospital') {
         sidebarLinks = [
-            { href: "/hospital", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
-            { href: "http://127.0.0.1:5000", label: "Scan NFC & QR Code", icon: <Search className="h-5 w-5" />, external: true },
-            { href: "/hospital/settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
+            { href: "/hospital", label: "Patient Search", icon: <Search className="h-5 w-5" /> },
+            { href: "http://127.0.0.1:5000/scan", label: "NFC Scanner", icon: <LayoutDashboard className="h-5 w-5" />, external: true },
         ];
     } else if (role === 'insurance') {
         sidebarLinks = [
             { href: "/insurance", label: "Dashboard", icon: <LayoutDashboard className="h-5 w-5" /> },
-            { href: "/insurance/claims", label: "Claims", icon: <FileText className="h-5 w-5" /> },
+            { href: "/insurance/register-patient", label: "Register Patient", icon: <User className="h-5 w-5" /> },
+            { href: "/insurance/claims", label: "Claims Processing", icon: <FileText className="h-5 w-5" /> },
+        ];
+    } else if (role === 'admin' || role === 'service_role') {
+        sidebarLinks = [
+            { href: "/admin/create-org", label: "Manage Orgs", icon: <Shield className="h-5 w-5" /> },
         ];
     } else {
         // Patient (Default)
         sidebarLinks = [
+            { href: "/dashboard", label: "My Health ID", icon: <User className="h-5 w-5" /> },
         ];
     }
 

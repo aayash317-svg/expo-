@@ -1,5 +1,6 @@
 import { ShieldAlert } from "lucide-react";
 import Link from "next/link";
+import { SignOutButton } from "@/components/auth-buttons";
 
 export default function HospitalVerificationPending() {
     return (
@@ -21,9 +22,15 @@ export default function HospitalVerificationPending() {
                 Please verify this account manually in the database by setting
                 `verified = true` in the `hospitals` table.
             </div>
-            <Link href="/" className="text-emerald-600 hover:underline">
-                Return to Home
-            </Link>
+            <div className="flex flex-col gap-2">
+                <Link href="/" className="text-emerald-600 hover:underline">
+                    Return to Home
+                </Link>
+                <div className="flex items-center justify-center gap-2 text-sm text-muted-foreground mt-4">
+                    <span>Wrong account?</span>
+                    <SignOutButton />
+                </div>
+            </div>
         </div>
     )
 }

@@ -1,0 +1,15 @@
+# Create Next App
+
+[RETURN_TO_BASE](http://localhost:3005/)
+
+## Advanced Clinical Management.
+Secure, end-to-end encrypted medical records access.
+Real-time verification and identity management.
+Seamless integration with global healthcare providers.
+[Back](http://localhost:3005/)
+
+# Provider Portal
+Authorized medical personnel access only.
+[Lost credentials?](http://localhost:3005/login/hospital)
+New institution? [Register Facility](http://localhost:3005/signup/hospital)
+© 2026 HealthOne Systems. All rights reserved.
